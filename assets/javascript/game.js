@@ -5,75 +5,105 @@ var game = {
     playerWord: "",
     remGuess: 6,
     wins: 0,
-    word: "hello"
-};
+    word: "hello",
 
 
-function padStr (s) {
-    var padded = "";
+    initialise: function () {
+        for (var i = 0 ; i < this.word.length ; i++) {   // initialise playerWord by assigning an underscore for each letter in the word to guess
+            this.playerWord += "_"
+        }
+
+        $("#instructions").text("Press a letter key to make a guess.");     // likely temporary  
+    },
+
+
+    checkLoss: function () {
+        if (this.remGuess === 0) {
+            $("#instructions").text("You lose.  Refresh the page to play again.");      // likely temporary
+            this.losses++;
+        }
+    },
+
+
+    checkWin: function () {
+        if (this.playerWord === this.word) {
+            $("#instructions").text("You win!  Refresh the page to play again.");       // likely temporary
+            this.wins++;
+        }
+    },
+
+
+    addSpaces: function () {
+        var padded = "";
+        
+        for (var i = 0 ; i < this.playerWord.length ; i++) {
+            padded += this.playerWord.charAt(i);
+            padded += " ";
+        }
     
-    for (var i = 0 ; i < s.length ; i++) {
-        padded += s.charAt(i);
-        padded += " ";
-    }
+        padded.trim();  // remove trailing whitespace
+    
+        return padded;
+    },
 
-    padded.trim();
 
-    return padded;
-}
+    updateBoard: function () {
+        $("#word").text(this.addSpaces());
+        $("#guessed").text(this.guessed);
+        $("#remGuess").text("Remaining Guesses: " + this.remGuess);
+        $("#wins").text("Wins: " + this.wins);
+        $("#losses").text("Losses: " + this.losses);
+    },
+
+
+    updateGuessed: function (c) {
+        this.guessed += " " + c;
+    },
+
+
+    updatePlayerWord: function (c) {
+        var updated = "";
+
+        for (var i = 0 ; i < this.word.length ; i++) {
+            if (this.word.charAt(i) === c) {
+                updated += c;
+            }
+            else {
+                updated += this.playerWord.charAt(i);
+            }
+        }
+
+        this.playerWord = updated;
+    },
+
+
+    updateRemGuess: function () {
+        this.remGuess--;
+    },
+};
 
 
 document.onkeydown = function(event) {
     if (game.firstKey === false) {
         game.firstKey = true;
-
-        for (var i = 0 ; i < game.word.length ; i++) {   // initialise playerWord by giving an underscore for each letter in the word to guess
-            game.playerWord += "_"
-        }
-
-        $("#instructions").text("Press a letter key to make a guess.");
-        $("#word").text(padStr(game.playerWord));
-        $("#remGuess").text("Remaining Guesses: " + game.remGuess);
-        $("#wins").text("Wins: " + game.wins);
-        $("#losses").text("Losses: " + game.losses);
+        game.initialise();
+        game.updateBoard();
     }
     else {
         var key = event.key;
 
         if (game.word.includes(key)) {
-            var tempStr = "";
-
-            for (var i = 0 ; i < game.word.length ; i++) {
-                if (game.word.charAt(i) === key) {
-                    tempStr += key;
-                }
-                else {
-                    tempStr += game.playerWord.charAt(i);
-                }
-            }
-
-            game.playerWord = tempStr;
-            $("#word").text(padStr(game.playerWord));
-
-            if (game.playerWord === game.word) {
-                $("#instructions").text("You win!  Refresh the page to play again.");
-                game.wins++;
-                $("#wins").text("Wins: " + game.wins);
-            }
+            game.updatePlayerWord(key);
+            game.checkWin();
         }
         else {
-            game.remGuess--;
-            $("#remGuess").text("Remaining Guesses: " + game.remGuess);
-        
-            if (game.remGuess === 0) {
-                $("#instructions").text("You lose.  Refresh the page to play again.");
-                game.losses++;
-                $("#losses").text("Losses: " + game.losses);
-            }
+            game.updateRemGuess();
+            game.checkLoss();
         }
 
-        game.guessed += " " + key;
-        $("#guessed").text(game.guessed);
-    } 
+        game.updateGuessed(key);
+    }
+    
+    game.updateBoard();
 }
 
