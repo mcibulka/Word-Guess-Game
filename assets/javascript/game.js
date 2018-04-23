@@ -1,11 +1,12 @@
-var firstKey = false;
-var guessed = "Letters Guessed: ";
-var word = "hello"
-var newStr = "";
-
-var remGuess = 6;
-var wins = 0;
-var losses = 0;
+var game = {
+    firstKey: false,
+    guessed: "Letters Guessed: ",
+    losses: 0,
+    playerWord: "",
+    remGuess: 6,
+    wins: 0,
+    word: "hello"
+};
 
 
 function padStr (s) {
@@ -23,56 +24,56 @@ function padStr (s) {
 
 
 document.onkeydown = function(event) {
-    if (firstKey === false) {
-        firstKey = true;
+    if (game.firstKey === false) {
+        game.firstKey = true;
 
-        for (var i = 0 ; i < word.length ; i++) {   // initialise newStr by giving an underscore for each letter in the word to guess
-            newStr += "_"
+        for (var i = 0 ; i < game.word.length ; i++) {   // initialise playerWord by giving an underscore for each letter in the word to guess
+            game.playerWord += "_"
         }
 
         $("#instructions").text("Press a letter key to make a guess.");
-        $("#word").text(padStr(newStr));
-        $("#remGuess").text("Remaining Guesses: " + remGuess);
-        $("#wins").text("Wins: " + wins);
-        $("#losses").text("Losses: " + losses);
+        $("#word").text(padStr(game.playerWord));
+        $("#remGuess").text("Remaining Guesses: " + game.remGuess);
+        $("#wins").text("Wins: " + game.wins);
+        $("#losses").text("Losses: " + game.losses);
     }
     else {
         var key = event.key;
 
-        if (word.includes(key)) {
+        if (game.word.includes(key)) {
             var tempStr = "";
 
-            for (var i = 0 ; i < word.length ; i++) {
-                if (word.charAt(i) === key) {
+            for (var i = 0 ; i < game.word.length ; i++) {
+                if (game.word.charAt(i) === key) {
                     tempStr += key;
                 }
                 else {
-                    tempStr += newStr.charAt(i);
+                    tempStr += game.playerWord.charAt(i);
                 }
             }
 
-            newStr = tempStr;
-            $("#word").text(padStr(newStr));
+            game.playerWord = tempStr;
+            $("#word").text(padStr(game.playerWord));
 
-            if (newStr === word) {
+            if (game.playerWord === game.word) {
                 $("#instructions").text("You win!  Refresh the page to play again.");
-                wins++;
-                $("#wins").text("Wins: " + wins);
+                game.wins++;
+                $("#wins").text("Wins: " + game.wins);
             }
         }
         else {
-            remGuess--;
-            $("#remGuess").text("Remaining Guesses: " + remGuess);
+            game.remGuess--;
+            $("#remGuess").text("Remaining Guesses: " + game.remGuess);
         
-            if (remGuess === 0) {
+            if (game.remGuess === 0) {
                 $("#instructions").text("You lose.  Refresh the page to play again.");
-                losses++;
-                $("#losses").text("Losses: " + losses);
+                game.losses++;
+                $("#losses").text("Losses: " + game.losses);
             }
         }
 
-        guessed += " " + key;
-        $("#guessed").text(guessed);
+        game.guessed += " " + key;
+        $("#guessed").text(game.guessed);
     } 
 }
 
