@@ -2,12 +2,14 @@ var game = {
     currWord: 0,
     firstKey: false,
     guessed: "",
+    guesses: [],
     losses: 0,
     nextWord: false,
     playerWord: "",
+    prevWord: "",
     remGuess: 6,
     wins: 0,
-    words: ["hello", "world"],
+    words: ["sonic", "gallardo", "raptor", "sierra", "challenger"],
 
     addSpaces: function () {
         var padded = "";
@@ -24,19 +26,27 @@ var game = {
 
 
     initialise: function () {
-        this.playerWord = "";
-        this.guessed = "Letters Guessed: ";
-        this.nextWord = false;
-
-        for (var i = 0 ; i < this.words[this.currWord].length ; i++) {   // initialise playerWord by assigning an underscore for each letter in the word to guess
-            this.playerWord += "_"
+        if (this.nextWord) {
+            $("#instructions").text("Previous word: " + this.prevWord);
+            this.nextWord = false;
+        }
+        else {
+            $("#instructions").text("Press a letter key to make a guess.");
         }
 
-        $("#instructions").text("Press a letter key to make a guess.");     // likely temporary  
+        this.guesses.length = 0;   // remove any guesses from the previous round
+        this.playerWord = "";
+        this.guessed = "Letters Guessed: ";
+        
+        for (var i = 0 ; i < this.words[this.currWord].length ; i++) {   // initialise playerWord by assigning an underscore for each letter in the word to guess
+            this.playerWord += "_"
+        }    
     },
 
 
     changeWord: function () {
+        this.prevWord = this.words[this.currWord];
+
         if (this.currWord < this.words.length - 1){
             this.currWord++;    // select next word in words array
         }
@@ -111,20 +121,24 @@ document.onkeydown = function(event) {
     else {
         var key = event.key;
 
-        if (game.words[game.currWord].includes(key)) {
-            game.updatePlayerWord(key);
-            game.checkWin();
-        }
-        else {
-            game.updateRemGuess();
-            game.checkLoss();
-        }
+        if (game.guesses.includes(key) === false) {
+            game.guesses.push(key);
 
-        if (game.nextWord) {
-            game.initialise();
-        }
-        else {
-            game.updateGuessed(key);
+            if (game.words[game.currWord].includes(key)) {
+                game.updatePlayerWord(key);
+                game.checkWin();
+            }
+            else {
+                game.updateRemGuess();
+                game.checkLoss();
+            }
+    
+            if (game.nextWord) {
+                game.initialise();
+            }
+            else {
+                game.updateGuessed(key);
+            }
         }
     }
     
