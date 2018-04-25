@@ -11,6 +11,7 @@ var game = {
     wins: 0,
     words: ["sonic", "gallardo", "raptor", "sierra", "challenger"],
 
+    /*  Add a space between each letter to increase readability  */
     addSpaces: function () {
         var padded = "";
         
@@ -24,7 +25,7 @@ var game = {
         return padded;
     },
 
-
+    /*  Prepare game for player  */
     initialise: function () {
         if (this.nextWord) {
             $("#instructions").text("Previous word: " + this.prevWord);
@@ -38,28 +39,30 @@ var game = {
         this.playerWord = "";
         this.guessed = "Letters Guessed: ";
         
-        for (var i = 0 ; i < this.words[this.currWord].length ; i++) {   // initialise playerWord by assigning an underscore for each letter in the word to guess
+        for (var i = 0 ; i < this.words[this.currWord].length ; i++) {   // initialise by assigning an underscore for each letter in the word to guess
             this.playerWord += "_"
         }    
     },
 
-
+    /*  Record the previous word for player to view after page updates, select next word from list  */
     changeWord: function () {
         this.prevWord = this.words[this.currWord];
 
         if (this.currWord < this.words.length - 1){
-            this.currWord++;    // select next word in words array
+            this.currWord++;    // select next word in words list
         }
         else {
-            this.currWord = 0;  // loop back from start of words array
+            this.currWord = 0;  // loop back from start of words list
         }
 
         this.remGuess = 6;
         this.nextWord = true;
     },
 
-
+    /*  Check if any remaining guesses are available  */
     checkLoss: function () {
+        this.remGuess--;
+
         if (this.remGuess === 0) {
             this.losses++;
 
@@ -67,7 +70,7 @@ var game = {
         }
     },
 
-
+    /*  Check for the matching word  */
     checkWin: function () {
         if (this.playerWord === this.words[this.currWord]) {
             this.wins++;
@@ -76,7 +79,7 @@ var game = {
         }
     },
 
-
+    /*  Update game data for player  */
     updateBoard: function () {
         $("#word").text(this.addSpaces());
         $("#guessed").text(this.guessed);
@@ -85,12 +88,12 @@ var game = {
         $("#losses").text("Losses: " + this.losses);
     },
 
-
+    /*  Adds guess to list of guesses to print to player  */
     updateGuessed: function (c) {
         this.guessed += " " + c;
     },
 
-
+    /*  Fills in correct guess at corresponding location within word  */
     updatePlayerWord: function (c) {
         var updated = "";
 
@@ -104,11 +107,6 @@ var game = {
         }
 
         this.playerWord = updated;
-    },
-
-
-    updateRemGuess: function () {
-        this.remGuess--;
     },
 };
 
@@ -129,7 +127,6 @@ document.onkeydown = function(event) {
                 game.checkWin();
             }
             else {
-                game.updateRemGuess();
                 game.checkLoss();
             }
     
