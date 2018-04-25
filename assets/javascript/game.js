@@ -1,37 +1,13 @@
 var game = {
+    currWord: 0,
     firstKey: false,
-    guessed: "Letters Guessed: ",
+    guessed: "",
     losses: 0,
+    nextWord: false,
     playerWord: "",
     remGuess: 6,
     wins: 0,
-    word: "hello",
-
-
-    initialise: function () {
-        for (var i = 0 ; i < this.word.length ; i++) {   // initialise playerWord by assigning an underscore for each letter in the word to guess
-            this.playerWord += "_"
-        }
-
-        $("#instructions").text("Press a letter key to make a guess.");     // likely temporary  
-    },
-
-
-    checkLoss: function () {
-        if (this.remGuess === 0) {
-            $("#instructions").text("You lose.  Refresh the page to play again.");      // likely temporary
-            this.losses++;
-        }
-    },
-
-
-    checkWin: function () {
-        if (this.playerWord === this.word) {
-            $("#instructions").text("You win!  Refresh the page to play again.");       // likely temporary
-            this.wins++;
-        }
-    },
-
+    words: ["hello", "world"],
 
     addSpaces: function () {
         var padded = "";
@@ -44,6 +20,50 @@ var game = {
         padded.trim();  // remove trailing whitespace
     
         return padded;
+    },
+
+
+    initialise: function () {
+        this.playerWord = "";
+        this.guessed = "Letters Guessed: ";
+        this.nextWord = false;
+
+        for (var i = 0 ; i < this.words[this.currWord].length ; i++) {   // initialise playerWord by assigning an underscore for each letter in the word to guess
+            this.playerWord += "_"
+        }
+
+        $("#instructions").text("Press a letter key to make a guess.");     // likely temporary  
+    },
+
+
+    changeWord: function () {
+        if (this.currWord < this.words.length - 1){
+            this.currWord++;    // select next word in words array
+        }
+        else {
+            this.currWord = 0;  // loop back from start of words array
+        }
+
+        this.remGuess = 6;
+        this.nextWord = true;
+    },
+
+
+    checkLoss: function () {
+        if (this.remGuess === 0) {
+            this.losses++;
+
+            this.changeWord();
+        }
+    },
+
+
+    checkWin: function () {
+        if (this.playerWord === this.words[this.currWord]) {
+            this.wins++;
+
+            this.changeWord();
+        }
     },
 
 
@@ -64,8 +84,8 @@ var game = {
     updatePlayerWord: function (c) {
         var updated = "";
 
-        for (var i = 0 ; i < this.word.length ; i++) {
-            if (this.word.charAt(i) === c) {
+        for (var i = 0 ; i < this.words[this.currWord].length ; i++) {
+            if (this.words[this.currWord].charAt(i) === c) {
                 updated += c;
             }
             else {
@@ -87,12 +107,11 @@ document.onkeydown = function(event) {
     if (game.firstKey === false) {
         game.firstKey = true;
         game.initialise();
-        game.updateBoard();
     }
     else {
         var key = event.key;
 
-        if (game.word.includes(key)) {
+        if (game.words[game.currWord].includes(key)) {
             game.updatePlayerWord(key);
             game.checkWin();
         }
@@ -101,7 +120,12 @@ document.onkeydown = function(event) {
             game.checkLoss();
         }
 
-        game.updateGuessed(key);
+        if (game.nextWord) {
+            game.initialise();
+        }
+        else {
+            game.updateGuessed(key);
+        }
     }
     
     game.updateBoard();
